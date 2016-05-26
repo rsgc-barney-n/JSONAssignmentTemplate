@@ -7,6 +7,11 @@ class ViewController : UIViewController {
     
     // Views that need to be accessible to all methods
     let jsonResult = UILabel()
+    let moneytextfield = UITextField()
+    let currencytextfield = UITextField()
+    let USDlabel = UILabel()
+    let DollarOutputLabel = UILabel()
+    
     
     // If data is successfully retrieved from the server, we can parse it here
     func parseMyJSON(theData : NSData) {
@@ -18,38 +23,31 @@ class ViewController : UIViewController {
         
         // De-serializing JSON can throw errors, so should be inside a do-catch structure
         do {
-            
+
             // Do the initial de-serialization
             // Source JSON is here:
             // http://www.apilayer.net/api/live?access_key=eeda439c5824bfca1724944353882011&format=1
             //
-            let json = try NSJSONSerialization.JSONObjectWithData(theData, options: NSJSONReadingOptions.AllowFragments) as! AnyObject
+            let json = try NSJSONSerialization.JSONObjectWithData(theData, options: NSJSONReadingOptions.AllowFragments)
             
             print(json)
+
+            print(json["quotes"])
             
-            if let currencyDetails = json as? [string:Anyobject){
-                
-                
-            }]
-//           // for allCurrencyData in json {
-//                
-//                if let currencyData = allCurrencyData as? [String : AnyObject]{
-//                    guard let conversionRates: String = currencyData["source"] as? String
-//                        else {
-//                            print("Error getting data")
-//                            return
-//                    }
-//                    print(conversionRates)
-//                }
-//            }
-//            // Print retrieved JSON
-//            print("")
-//            print("====== the retrieved JSON is as follows ======")
-//            print(json)
-//            
-//            // Now we can parse this...
-//            print("")
-//            print("Now, add your parsing code here...")
+            let quotes = json["quotes"]
+            
+            if let asString = currencytextfield.text! as? String {
+                print("USD" + asString)
+                print(quotes!![("USD" + asString)])
+                var quote = String(quotes!![("USD" + asString)])
+                if let asDub = Double(moneytextfield.text!) {
+                    if let quoteasnum = Double(quote){
+                        print(quoteasnum*asDub)
+                    }
+                }
+            }
+        
+            
             
             // Now we can update the UI
             // (must be done asynchronously)
@@ -88,7 +86,6 @@ class ViewController : UIViewController {
                 if r.statusCode == 200 {
         
                     
-                    
             
                     if let d = data {
                         
@@ -104,7 +101,7 @@ class ViewController : UIViewController {
         }
         
         // Define a URL to retrieve a JSON file from
-        let address : String = "http://www.apilayer.net/api/live?access_key=eeda439c5824bfca1724944353882011&format=1"
+        let address : String = "http://www.apilayer.net/api/live?access_key=eeda439c5824bfca1724944353882011&format=1/"
         
         // Try to make a URL request object
         if let url = NSURL(string: address) {
@@ -158,9 +155,45 @@ class ViewController : UIViewController {
         // Required to autolayout this label
         jsonResult.translatesAutoresizingMaskIntoConstraints = false
         
-        // Add the label to the superview
         view.addSubview(jsonResult)
 
+        
+        moneytextfield.text = "$..."
+        moneytextfield.font = UIFont.systemFontOfSize(14)
+        moneytextfield.textAlignment = NSTextAlignment.Center
+        moneytextfield.borderStyle = .RoundedRect
+        moneytextfield.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview( moneytextfield)
+        
+        currencytextfield.text = "USDXXX"
+        currencytextfield.font = UIFont.systemFontOfSize(14)
+        currencytextfield.textAlignment = NSTextAlignment.Center
+        currencytextfield.borderStyle = .RoundedRect
+        currencytextfield.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(currencytextfield)
+        
+        USDlabel.text = "USD"
+        USDlabel.font = UIFont.systemFontOfSize(12)
+        USDlabel.numberOfLines = 0
+        USDlabel.textAlignment = NSTextAlignment.Center
+        USDlabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(USDlabel)
+        
+        DollarOutputLabel.text = "$output"
+        DollarOutputLabel.font = UIFont.systemFontOfSize(12)
+        DollarOutputLabel.numberOfLines = 0
+        DollarOutputLabel.textAlignment = NSTextAlignment.Center
+        DollarOutputLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(DollarOutputLabel)
+        
+        
+        
+        // Add the label to the superview
+    
+       
+        
+        
+        
         /*
          * Add a button
          */
@@ -191,11 +224,16 @@ class ViewController : UIViewController {
         // Create a dictionary of views that will be used in the layout constraints defined below
         let viewsDictionary : [String : AnyObject] = [
             "title": jsonResult,
-            "getData": getData]
+            "getData": getData,
+            "Ulab": USDlabel,
+            "CUtex":  currencytextfield,
+            "DOlab":  DollarOutputLabel,
+            "MOtex":  moneytextfield
+            ]
         
         // Define the vertical constraints
         let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|-50-[getData]-[title]",
+            "V:|[title]-[MOtex][Ulab]-[getData]-[DOlab][CUtex]",
             options: [],
             metrics: nil,
             views: viewsDictionary)
